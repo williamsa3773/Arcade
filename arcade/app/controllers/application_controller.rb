@@ -10,7 +10,8 @@ class ApplicationController < ActionController::API
   end
 
   def decoded_token
-    if auth_headertoken = auth_header.split(' ')[1]
+    if auth_header
+      token = auth_header.split(' ')[1]
       begin
         JWT.decode(token, 'my_secret', true, alogrithm: 'HS256')
       rescue JWT::DecodeError
@@ -20,7 +21,7 @@ class ApplicationController < ActionController::API
   end
 
   def session_user
-    decoded_has = decoded_token
+    decoded_hash = decoded_token
     if !decoded_hash.empty?
       puts decoded_hash.class
       user_id = decoded_hash[0]['user_id']
