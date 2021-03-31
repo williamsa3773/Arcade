@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, } from 'react'
 import { withRouter, Link, Route, Switch, Redirect } from 'react-router-dom'
-import { loginUser, registerUser, verifyUser } from './services/api-helper'
+import { loginUser, registerUser, verifyUser, } from './services/api-helper'
 import Register from './components/auth/Register'
 import Login from './components/auth/Login'
 import LoggedIn from './components/LoggedIn'
 
 const App = (props) => {
-
   const [currentUser, setCurrentUser] = useState(null)
   const [authFormData, setAuthFormData] = useState({
   username: "",
@@ -14,17 +13,9 @@ const App = (props) => {
   password: "",
   })
 
-  useEffect(()=> {
-    (async() => {
-      const user = await verifyUser()
-      if (user) {
-        setCurrentUser(user)
-      }})()}, [])
-
-  const handleLogin = async (e) => {
+  const handleLogin = async () => {
     const userData = await loginUser(authFormData)
     setCurrentUser(userData)
-    console.log(currentUser)
     props.history.push('/authed')
   }
 
@@ -74,4 +65,4 @@ const App = (props) => {
   )
 }
 
-export default App
+export default withRouter(App)
