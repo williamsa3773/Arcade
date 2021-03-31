@@ -1,27 +1,28 @@
 class AuthController < ApplicationController
-  skip_before_action :require_login, only: [:login, :auto_login]
+  before_action :authorize_request, except: :login
 
-  def login 
-    @user = User.find_by(username: params[:username])
-    if @user.authenticate(params[:password])
-      payload = { user_id: user.id }
-      token = encode_token(payload)
-      render json: { user: user, jwt: token, success: 'Welcome back, #{user.username}'}
+  def login
+    @user = User.find_by_username(params[:username])
+    if @user.authenticate(params[:password]) # authenticate method provided by Bcrypt and 'has_secure_password'
+      token = encode(id: @user.id, username: @user.username)
+      render json: { token: token , user: { id: @user.id, username: @user.username}}, status: :ok
     else
-      render json: { failure: 'Log in fails! Username or password invalid!'}
+      render json: { error: 'unauthorized' }, status: :unauthorized
     end
   end
 
-  def auto_login
-    if session_user
-      render json: session_user
-    else
-      render json: { errors: 'No User Logged In'}
-    end
+  def verify
+    @user = {
+      id: @current_user[:id],
+      username: @current_user[:username],
+      email: @current_user[:email]
+    }
+    render json: @user
   end
 
-  def user_is_authed
-    render json: { message: 'You are authorized'}
+  private
+
+  def login_params
+    params.permit(:username, :password)
   end
-  
 end
